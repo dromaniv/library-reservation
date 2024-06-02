@@ -19,29 +19,30 @@ class CassandraClient:
         result = self.session.execute(query, (book_id,))
         return result.one() is not None
 
-    def book_is_reserved(self, book_id):
+    def is_book_reserved(self, book_id):
         query = SimpleStatement(
-            "SELECT id FROM reservations WHERE book_id=%s ALLOW FILTERING"
+            "SELECT id FROM reservations WHERE book_id=%s AND status='active' ALLOW FILTERING"
         )
         result = self.session.execute(query, (book_id,))
         return result.one() is not None
-
+    
     def make_reservation(self, user_id, book_id):
-        if not self.book_exists(book_id):
-            return None, 'Book does not exist'
-        
-        if self.book_is_reserved(book_id):
-            return None, 'Book is already reserved'
-
-        reservation_id = uuid.uuid4()
-        reservation_date = datetime.now()
-        status = 'active'
-        
-        query = SimpleStatement(
-            "INSERT INTO reservations (id, user_id, book_id, reservation_date, status) VALUES (%s, %s, %s, %s, %s)"
-        )
-        self.session.execute(query, (reservation_id, user_id, book_id, reservation_date, status))
-        return reservation_id, None
+        with self.lock:
+            if not self.book_exists(book_id):
+                return None  # Book does not exist
+            
+            if self.is_book_reserved(book_id):
+                return None  # Book is already reserved
+            
+            reservation_id = uuid.uuid4()
+            reservation_date = datetime.now()
+            status = 'active'
+            
+            query = SimpleStatement(
+                "INSERT INTO reservations (id, user_id, book_id, reservation_date, status) VALUES (%s, %s, %s, %s, %s)"
+            )
+            self.session.execute(query, (reservation_id, user_id, book_id, reservation_date, status))
+            return reservation_id
     
     def update_reservation(self, reservation_id, new_date):
         query = SimpleStatement(

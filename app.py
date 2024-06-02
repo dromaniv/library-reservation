@@ -18,11 +18,11 @@ def index():
 def reserve():
     user_id = uuid.UUID(session['user_id'])
     book_id = uuid.UUID(request.json['book_id'])
-    reservation_id, error = client.make_reservation(user_id, book_id)
+    reservation_id = client.make_reservation(user_id, book_id)
     if reservation_id:
         return jsonify({'reservation_id': str(reservation_id)})
     else:
-        return jsonify({'error': error}), 400
+        return jsonify({'error': 'Book does not exist or is already reserved'}), 400
 
 @app.route('/reservation/<reservation_id>', methods=['GET'])
 def get_reservation(reservation_id):
