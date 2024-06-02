@@ -1,0 +1,35 @@
+version: '3'
+services:
+  cassandra1:
+    image: cassandra:latest
+    container_name: cassandra1
+    ports:
+      - "9042:9042"
+    volumes:
+      - ./setup.cql:/setup.cql
+    environment:
+      - CASSANDRA_CLUSTER_NAME=cassandra-cluster
+    networks:
+      - cassandra-net
+
+  cassandra2:
+    image: cassandra:latest
+    container_name: cassandra2
+    environment:
+      - CASSANDRA_CLUSTER_NAME=cassandra-cluster
+      - CASSANDRA_SEEDS=cassandra1
+    networks:
+      - cassandra-net
+
+  cassandra3:
+    image: cassandra:latest
+    container_name: cassandra3
+    environment:
+      - CASSANDRA_CLUSTER_NAME=cassandra-cluster
+      - CASSANDRA_SEEDS=cassandra1
+    networks:
+      - cassandra-net
+
+networks:
+  cassandra-net:
+    driver: bridge

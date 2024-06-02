@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Reservation System</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="my-4">Library Reservation System</h1>
+        <div id="books" class="mb-4">
+            <h2>Available Books</h2>
+            <ul id="book-list" class="list-group"></ul>
+        </div>
+        <div id="reservation-form" class="mb-4">
+            <h2>Make a Reservation</h2>
+            <form id="reserve-book-form" class="form-inline">
+                <label for="user_id" class="mr-2">User ID:</label>
+                <input type="text" id="user_id" name="user_id" class="form-control mr-2" required>
+                <label for="book_id" class="mr-2">Book ID:</label>
+                <input type="text" id="book_id" name="book_id" class="form-control mr-2" required>
+                <button type="submit" class="btn btn-primary">Reserve</button>
+            </form>
+        </div>
+        <div id="all-reservations" class="mb-4">
+            <h2>All Reservations</h2>
+            <ul id="reservation-list" class="list-group"></ul>
+        </div>
+        <div id="reservation-actions" class="mb-4">
+            <h2>Manage Reservations</h2>
+            <form id="update-reservation-form" class="form-inline mb-2">
+                <label for="reservation_id_update" class="mr-2">Reservation ID:</label>
+                <input type="text" id="reservation_id_update" name="reservation_id" class="form-control mr-2" required>
+                <label for="new_date" class="mr-2">New Date:</label>
+                <input type="date" id="new_date" name="new_date" class="form-control mr-2" required>
+                <button type="submit" class="btn btn-warning">Update</button>
+            </form>
+            <form id="cancel-reservation-form" class="form-inline mb-2">
+                <label for="reservation_id_cancel" class="mr-2">Reservation ID:</label>
+                <input type="text" id="reservation_id_cancel" name="reservation_id" class="form-control mr-2" required>
+                <button type="submit" class="btn btn-danger">Cancel</button>
+            </form>
+            <form id="view-reservation-form" class="form-inline mb-2">
+                <label for="reservation_id_view" class="mr-2">Reservation ID:</label>
+                <input type="text" id="reservation_id_view" name="reservation_id" class="form-control mr-2" required>
+                <button type="submit" class="btn btn-info">View</button>
+            </form>
+        </div>
+        <div id="reservation-details" class="mt-4">
+            <h2>Reservation Details</h2>
+            <pre id="reservation-details-content"></pre>
+        </div>
+        <div id="message" class="alert" role="alert"></div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="/static/script.js"></script>
+</body>
+</html>

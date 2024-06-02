@@ -1,2 +1,1 @@
-# library-reservation
-Big Data Cassandra Project
+docker exec -it cassandra1 cqlsh -f /setup.cql

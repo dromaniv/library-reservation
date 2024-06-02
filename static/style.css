@@ -1,0 +1,16 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+h1 {
+    color: #333;
+}
+
+#message {
+    margin-top: 20px;
+    display: none;
+}
+
+#reservation-details {
+    display: none;
+}
