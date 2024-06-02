@@ -1,39 +1,35 @@
 document.addEventListener('DOMContentLoaded', function() {
-    fetchBooks();
-
-    document.getElementById('reserve-book-form').addEventListener('submit', function(event) {
-        event.preventDefault();
-        makeReservation();
-    });
-
-    document.getElementById('update-reservation-form').addEventListener('submit', function(event) {
-        event.preventDefault();
-        updateReservation();
-    });
-
-    document.getElementById('cancel-reservation-form').addEventListener('submit', function(event) {
-        event.preventDefault();
-        cancelReservation();
-    });
-
-    document.getElementById('view-reservation-form').addEventListener('submit', function(event) {
-        event.preventDefault();
-        viewReservation();
-    });
-
-    fetchReservations();
+    refresh();
 });
+
+function refresh() {
+    fetchBooks();
+    fetchMyReservations();
+    fetchReservedBooks();
+    document.getElementById('reservation-details').style.display = 'none';
+}
 
 function fetchBooks() {
     fetch('/books')
         .then(response => response.json())
         .then(books => {
+            return fetch('/all_reservations')
+                .then(response => response.json())
+                .then(reservations => {
+                    const reservedBookIds = new Set(reservations.map(reservation => reservation.book_id));
+                    return books.filter(book => !reservedBookIds.has(book.id));
+                });
+        })
+        .then(availableBooks => {
             const bookList = document.getElementById('book-list');
             bookList.innerHTML = '';
-            books.forEach(book => {
+            availableBooks.forEach(book => {
                 const li = document.createElement('li');
-                li.textContent = `${book.title} by ${book.author} (ID: ${book.id})`;
-                li.classList.add('list-group-item');
+                li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+                li.innerHTML = `
+                    <span>"${book.title}" by ${book.author} [${book.published_date}]</span>
+                    <button class="btn btn-primary btn-sm" onclick="reserveBook('${book.id}')">Reserve</button>
+                `;
                 bookList.appendChild(li);
             });
         })
@@ -42,23 +38,52 @@ function fetchBooks() {
         });
 }
 
-function makeReservation() {
-    const userId = document.getElementById('user_id').value;
-    const bookId = document.getElementById('book_id').value;
+function fetchReservedBooks() {
+    fetch('/all_reservations')
+        .then(response => response.json())
+        .then(allReservations => {
+            return fetch('/reservations')
+                .then(response => response.json())
+                .then(userReservations => {
+                    const userReservationBookIds = new Set(userReservations.map(reservation => reservation.book_id));
+                    const reservedBookList = document.getElementById('reserved-book-list');
+                    reservedBookList.innerHTML = '';
+                    allReservations.forEach(reservation => {
+                        if (!userReservationBookIds.has(reservation.book_id)) {
+                            const li = document.createElement('li');
+                            li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+                            fetch(`/book/${reservation.book_id}`)
+                                .then(response => response.json())
+                                .then(book => {
+                                    li.innerHTML = `
+                                        <span>${book.author}'s "${book.title}" (Reserved by user: ${reservation.user_id.substring(0, 4)}...)</span>
+                                    `;
+                                    reservedBookList.appendChild(li);
+                                });
+                        }
+                    });
+                });
+        })
+        .catch(error => {
+            console.error('Error fetching reserved books:', error);
+        });
+}
 
+
+function reserveBook(bookId) {
     fetch('/reserve', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            user_id: userId,
             book_id: bookId,
         }),
     })
     .then(response => response.json())
     .then(data => {
         showMessage(data.error ? 'danger' : 'success', data.error || `Reservation successful! Reservation ID: ${data.reservation_id}`);
+        refresh();
     })
     .catch(error => {
         console.error('Error making reservation:', error);
@@ -66,10 +91,67 @@ function makeReservation() {
     });
 }
 
-function updateReservation() {
-    const reservationId = document.getElementById('reservation_id_update').value;
-    const newDate = document.getElementById('new_date').value;
+function fetchMyReservations() {
+    fetch('/reservations')
+        .then(response => response.json())
+        .then(reservations => {
+            const reservationList = document.getElementById('reservation-list');
+            reservationList.innerHTML = '';
+            reservations.forEach(reservation => {
+                const li = document.createElement('li');
+                li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+                li.innerHTML = `
+                    <span>Reservation ${reservation.id.substring(0, 4)}... from ${reservation.reservation_date.split('T')[0]}</span>
+                    <div>
+                        <button class="btn btn-info btn-sm" onclick="viewReservation('${reservation.id}')">View</button>
+                        <button class="btn btn-warning btn-sm" onclick="updateReservationPrompt('${reservation.id}')">Update</button>
+                        <button class="btn btn-danger btn-sm" onclick="cancelReservation('${reservation.id}')">Cancel</button>
+                    </div>
+                `;
+                reservationList.appendChild(li);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching reservations:', error);
+        });
+}
 
+function viewReservation(reservationId) {
+    fetch(`/reservation/${reservationId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                showMessage('danger', data.error);
+            } else {
+                const details = `
+Reservation ID: ${data.id}
+User ID: ${data.user_id}
+Book ID: ${data.book_id}
+Reservation Date: ${data.reservation_date}
+Status: ${data.status}
+Book Title: ${data.book_title}
+Book Author: ${data.book_author}
+Published Date: ${data.book_published_date}
+Pages: ${data.book_pages}
+`;
+                document.getElementById('reservation-details-content').textContent = details;
+                document.getElementById('reservation-details').style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error viewing reservation:', error);
+            showMessage('danger', 'An error occurred while viewing the reservation.');
+        });
+}
+
+function updateReservationPrompt(reservationId) {
+    const newDate = prompt("Enter new reservation date (YYYY-MM-DD):");
+    if (newDate) {
+        updateReservation(reservationId, newDate);
+    }
+}
+
+function updateReservation(reservationId, newDate) {
     fetch('/update', {
         method: 'PUT',
         headers: {
@@ -83,6 +165,7 @@ function updateReservation() {
     .then(response => response.json())
     .then(data => {
         showMessage('warning', 'Reservation updated.');
+        refresh();
     })
     .catch(error => {
         console.error('Error updating reservation:', error);
@@ -90,66 +173,20 @@ function updateReservation() {
     });
 }
 
-function cancelReservation() {
-    const reservationId = document.getElementById('reservation_id_cancel').value;
-
+function cancelReservation(reservationId) {
     fetch(`/cancel/${reservationId}`, {
         method: 'DELETE',
     })
     .then(response => response.json())
     .then(data => {
         showMessage('danger', 'Reservation cancelled.');
+        refresh();
     })
     .catch(error => {
         console.error('Error cancelling reservation:', error);
         showMessage('danger', 'An error occurred while cancelling the reservation.');
     });
 }
-
-function viewReservation() {
-    const reservationId = document.getElementById('reservation_id_view').value;
-
-    fetch(`/reservation/${reservationId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                showMessage('danger', data.error);
-            } else {
-                const details = `
-ID: ${data.id}
-User ID: ${data.user_id}
-Book ID: ${data.book_id}
-Reservation Date: ${data.reservation_date}
-Status: ${data.status}
-`;
-                document.getElementById('reservation-details-content').textContent = details;
-                document.getElementById('reservation-details').style.display = 'block';
-            }
-        })
-        .catch(error => {
-            console.error('Error viewing reservation:', error);
-            showMessage('danger', 'An error occurred while viewing the reservation.');
-        });
-}
-
-function fetchReservations() {
-    fetch('/reservations')
-        .then(response => response.json())
-        .then(reservations => {
-            const reservationList = document.getElementById('reservation-list');
-            reservationList.innerHTML = '';
-            reservations.forEach(reservation => {
-                const li = document.createElement('li');
-                li.textContent = `Reservation ID: ${reservation.id}, User ID: ${reservation.user_id}, Book ID: ${reservation.book_id}, Date: ${reservation.reservation_date}`;
-                li.classList.add('list-group-item');
-                reservationList.appendChild(li);
-            });
-        })
-        .catch(error => {
-            console.error('Error fetching reservations:', error);
-        });
-}
-
 
 function showMessage(type, message) {
     const messageDiv = document.getElementById('message');
@@ -159,5 +196,4 @@ function showMessage(type, message) {
     setTimeout(() => {
         messageDiv.style.display = 'none';
     }, 5000);
-    fetchReservations();
 }

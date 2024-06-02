@@ -48,7 +48,7 @@ class CassandraClient:
     
     def update_reservation(self, reservation_id, new_date):
         query = SimpleStatement(
-            "UPDATE reservations SET reservation_date=%s WHERE id=%s"
+            "UPDATE reservations SET reservation_date=%s, status='updated' WHERE id=%s"
         )
         self.session.execute(query, (new_date, reservation_id))
     
@@ -79,9 +79,23 @@ class CassandraClient:
         result = self.session.execute(query)
         return result.all()
     
+    def get_book(self, book_id):
+        query = SimpleStatement(
+            "SELECT * FROM books WHERE id=%s"
+        )
+        result = self.session.execute(query, (book_id,))
+        return result.one()
+    
+    def get_reservations_by_user(self, user_id):
+        query = SimpleStatement(
+            "SELECT * FROM reservations WHERE user_id=%s ALLOW FILTERING"
+        )
+        result = self.session.execute(query, (user_id,))
+        return result.all()
+
     def get_all_reservations(self):
         query = SimpleStatement(
-            "SELECT * FROM reservations"
+            "SELECT * FROM reservations ALLOW FILTERING"
         )
         result = self.session.execute(query)
         return result.all()
