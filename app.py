@@ -19,7 +19,7 @@ def reserve():
     if reservation_id:
         return jsonify({'reservation_id': str(reservation_id)})
     else:
-        return jsonify({'error': 'Book does not exist'}), 400
+        return jsonify({'error': 'Book does not exist or is already reserved'}), 400
 
 @app.route('/reservation/<reservation_id>', methods=['GET'])
 def get_reservation(reservation_id):
