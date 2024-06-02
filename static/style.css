@@ -1,9 +1,11 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Roboto', sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
 }
 
-h1 {
-    color: #333;
+h1, h2 {
+    color: #007bff;
 }
 
 #message {
@@ -11,6 +13,16 @@ h1 {
     display: none;
 }
 
-#reservation-details {
-    display: none;
+.scrollable-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.btn {
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+    color: white;
 }
