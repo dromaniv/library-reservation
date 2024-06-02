@@ -8,7 +8,9 @@ services:
     volumes:
       - ./setup.cql:/setup.cql
     environment:
-      - CASSANDRA_CLUSTER_NAME=cassandra-cluster
+      - CASSANDRA_CLUSTER_NAME=library-cluster
+      - CASSANDRA_SEEDS=cassandra1,cassandra2,cassandra3
+      - CASSANDRA_NUM_TOKENS=256
     networks:
       - cassandra-net
 
@@ -16,8 +18,9 @@ services:
     image: cassandra:latest
     container_name: cassandra2
     environment:
-      - CASSANDRA_CLUSTER_NAME=cassandra-cluster
-      - CASSANDRA_SEEDS=cassandra1
+      - CASSANDRA_CLUSTER_NAME=library-cluster
+      - CASSANDRA_SEEDS=cassandra1,cassandra2,cassandra3
+      - CASSANDRA_NUM_TOKENS=256
     networks:
       - cassandra-net
 
@@ -25,8 +28,9 @@ services:
     image: cassandra:latest
     container_name: cassandra3
     environment:
-      - CASSANDRA_CLUSTER_NAME=cassandra-cluster
-      - CASSANDRA_SEEDS=cassandra1
+      - CASSANDRA_CLUSTER_NAME=library-cluster
+      - CASSANDRA_SEEDS=cassandra1,cassandra2,cassandra3
+      - CASSANDRA_NUM_TOKENS=256
     networks:
       - cassandra-net
 
