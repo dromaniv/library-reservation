@@ -23,28 +23,33 @@ class CassandraClient:
 
     def is_book_reserved(self, book_id):
         query = SimpleStatement(
-            "SELECT id FROM reservations WHERE book_id=%s AND status='active' ALLOW FILTERING"
+            "SELECT id FROM reservations WHERE book_id=%s"
         )
         result = self.session.execute(query, (book_id,))
         return result.one() is not None
     
     def make_reservation(self, user_id, book_id):
+
         with self.lock:
+
             if not self.book_exists(book_id):
                 return None  # Book does not exist
             
             if self.is_book_reserved(book_id):
                 return None  # Book is already reserved
             
-            reservation_id = uuid.uuid4()
             reservation_date = datetime.now()
             status = 'active'
-            
+
+            reservation_id = uuid.uuid4()
+
             query = SimpleStatement(
                 "INSERT INTO reservations (id, user_id, book_id, reservation_date, status) VALUES (%s, %s, %s, %s, %s)"
             )
             self.session.execute(query, (reservation_id, user_id, book_id, reservation_date, status))
             return reservation_id
+        
+        
     
     def update_reservation(self, reservation_id, new_date):
         query = SimpleStatement(
@@ -54,6 +59,7 @@ class CassandraClient:
     
     def get_reservation(self, reservation_id):
         query = SimpleStatement(
+            
             "SELECT * FROM reservations WHERE id=%s"
         )
         result = self.session.execute(query, (reservation_id,))
@@ -61,7 +67,7 @@ class CassandraClient:
 
     def get_reservation_by_book_id(self, book_id):
         query = SimpleStatement(
-            "SELECT * FROM reservations WHERE book_id=%s AND status='active' ALLOW FILTERING"
+            "SELECT * FROM reservations WHERE book_id=%s"
         )
         result = self.session.execute(query, (book_id,))
         return result.one()
@@ -88,14 +94,14 @@ class CassandraClient:
     
     def get_reservations_by_user(self, user_id):
         query = SimpleStatement(
-            "SELECT * FROM reservations WHERE user_id=%s ALLOW FILTERING"
+            "SELECT * FROM reservations WHERE user_id=%s"
         )
         result = self.session.execute(query, (user_id,))
         return result.all()
 
     def get_all_reservations(self):
         query = SimpleStatement(
-            "SELECT * FROM reservations ALLOW FILTERING"
+            "SELECT * FROM reservations"
         )
         result = self.session.execute(query)
         return result.all()
