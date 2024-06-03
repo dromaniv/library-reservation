@@ -79,9 +79,7 @@ CREATE TABLE IF NOT EXISTS reservations (
   id UUID PRIMARY KEY,
   user_id UUID,
   book_id UUID,
-  reservation_date timestamp,
-  status text,
+  reservation_date timestamp
 );
 
-CREATE INDEX ON reservations (book_id);
-CREATE INDEX ON reservations (user_id);
+CREATE INDEX IF NOT EXISTS ON reservations (book_id);

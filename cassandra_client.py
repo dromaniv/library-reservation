@@ -39,21 +39,18 @@ class CassandraClient:
                 return None  # Book is already reserved
             
             reservation_date = datetime.now()
-            status = 'active'
-
-            reservation_id = uuid.uuid4()
-
+            
             query = SimpleStatement(
-                "INSERT INTO reservations (id, user_id, book_id, reservation_date, status) VALUES (%s, %s, %s, %s, %s)"
+                "INSERT INTO reservations (id, user_id, book_id, reservation_date) VALUES (%s, %s, %s, %s)"
             )
-            self.session.execute(query, (reservation_id, user_id, book_id, reservation_date, status))
+            self.session.execute(query, (reservation_id, user_id, book_id, reservation_date))
             return reservation_id
         
         
     
     def update_reservation(self, reservation_id, new_date):
         query = SimpleStatement(
-            "UPDATE reservations SET reservation_date=%s, status='updated' WHERE id=%s"
+            "UPDATE reservations SET reservation_date=%s WHERE id=%s"
         )
         self.session.execute(query, (new_date, reservation_id))
     
