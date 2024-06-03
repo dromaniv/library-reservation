@@ -5,16 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Library Reservation System</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
     <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        h1, h2 {
+            color: #007bff;
+        }
+
+        #message {
+            margin-top: 20px;
+            display: none;
+        }
+
         .scrollable-list {
             max-height: 200px;
             overflow-y: auto;
         }
+
+        .btn {
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+            color: white;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container mt-5">
         <h1 class="my-4">Library Reservation System</h1>
         <div id="books" class="mb-4">
             <h2>Available Books</h2>
