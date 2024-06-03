@@ -39,6 +39,7 @@ class CassandraClient:
                 return None  # Book is already reserved
             
             reservation_date = datetime.now()
+            reservation_id = uuid.uuid4()
             
             query = SimpleStatement(
                 "INSERT INTO reservations (id, user_id, book_id, reservation_date) VALUES (%s, %s, %s, %s)"

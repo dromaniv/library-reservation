@@ -83,3 +83,4 @@ CREATE TABLE IF NOT EXISTS reservations (
 );
 
 CREATE INDEX IF NOT EXISTS ON reservations (book_id);
+CREATE INDEX IF NOT EXISTS ON reservations (user_id);
