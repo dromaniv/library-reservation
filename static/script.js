@@ -120,7 +120,6 @@ Reservation ID: ${data.id}
 User ID: ${data.user_id}
 Book ID: ${data.book_id}
 Reservation Date: ${data.reservation_date}
-Status: ${data.status}
 Book Title: ${data.book_title}
 Book Author: ${data.book_author}
 Published Date: ${data.book_published_date}
