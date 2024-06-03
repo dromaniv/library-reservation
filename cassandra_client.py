@@ -23,7 +23,7 @@ class CassandraClient:
 
     def is_book_reserved(self, book_id):
         query = SimpleStatement(
-            "SELECT id FROM reservations WHERE book_id=%s AND status='active' ALLOW FILTERING"
+            "SELECT id FROM reservations WHERE book_id=%s"
         )
         result = self.session.execute(query, (book_id,))
         return result.one() is not None
@@ -38,17 +38,16 @@ class CassandraClient:
             
             reservation_id = uuid.uuid4()
             reservation_date = datetime.now()
-            status = 'active'
             
             query = SimpleStatement(
-                "INSERT INTO reservations (id, user_id, book_id, reservation_date, status) VALUES (%s, %s, %s, %s, %s)"
+                "INSERT INTO reservations (id, user_id, book_id, reservation_date) VALUES (%s, %s, %s, %s)"
             )
-            self.session.execute(query, (reservation_id, user_id, book_id, reservation_date, status))
+            self.session.execute(query, (reservation_id, user_id, book_id, reservation_date))
             return reservation_id
     
     def update_reservation(self, reservation_id, new_date):
         query = SimpleStatement(
-            "UPDATE reservations SET reservation_date=%s, status='updated' WHERE id=%s"
+            "UPDATE reservations SET reservation_date=%s WHERE id=%s"
         )
         self.session.execute(query, (new_date, reservation_id))
     
@@ -61,7 +60,7 @@ class CassandraClient:
 
     def get_reservation_by_book_id(self, book_id):
         query = SimpleStatement(
-            "SELECT * FROM reservations WHERE book_id=%s AND status='active' ALLOW FILTERING"
+            "SELECT * FROM reservations WHERE book_id=%s"
         )
         result = self.session.execute(query, (book_id,))
         return result.one()

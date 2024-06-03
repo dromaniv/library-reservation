@@ -34,7 +34,6 @@ def get_reservation(reservation_id):
             'user_id': str(reservation.user_id),
             'book_id': str(reservation.book_id),
             'reservation_date': str(reservation.reservation_date),
-            'status': reservation.status,
             'book_title': book.title,
             'book_author': book.author,
             'book_published_date': str(book.published_date),
@@ -73,8 +72,7 @@ def get_all_reservations():
         'id': str(reservation.id),
         'user_id': str(reservation.user_id),
         'book_id': str(reservation.book_id),
-        'reservation_date': str(reservation.reservation_date),
-        'status': reservation.status
+        'reservation_date': str(reservation.reservation_date)
     } for reservation in reservations])
 
 @app.route('/reservations', methods=['GET'])
@@ -85,8 +83,7 @@ def get_reservations():
         'id': str(reservation.id),
         'user_id': str(reservation.user_id),
         'book_id': str(reservation.book_id),
-        'reservation_date': str(reservation.reservation_date),
-        'status': reservation.status
+        'reservation_date': str(reservation.reservation_date)
     } for reservation in reservations])
 
 @app.route('/book/<book_id>', methods=['GET'])
